@@ -1,4 +1,6 @@
 import express from 'express';
+import cookieSession from 'cookie-session';
+import passport from 'passport';
 import {connectDB} from './db/db_main.mjs';
 
 // auth imports for loading authConfig
@@ -9,7 +11,15 @@ import authRouter from './routes/auth.mjs';
 
 const app = express();
 
-const PORT = process.env.PORT;
+// passport and cookies setup
+app.use(cookieSession({
+    keys: [process.env.COOKIE_ENCRYPT_KEY]
+}));
+
+app.use(passport.initialize());
+app.use(passport.session());
+
+const PORT = process.env.PORT || 3000;
 //app crash loggging code middleware
 
 // Routes

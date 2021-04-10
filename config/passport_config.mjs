@@ -14,13 +14,13 @@ const GoogleStrategy = googleAuth.Strategy;
 // cookie data serialization setup
 
 passport.serializeUser((user, done) => {
-    done(new Error("Error serializing user!"), user._id);
+    done(null, user._id);
 })
 
 passport.deserializeUser(async (id, done) => {
     try {
         const user = await models.User.findById(id);
-        done(new Error("Error deserializing user"), user);
+        done(null, user);
     }
     catch(err) {
         console.log("Error fetching user!");
@@ -36,7 +36,7 @@ const strategy = passport.use(new GoogleStrategy({
     try {
         const user = await models.User.findById(profile.id);
         if(user) {
-            done(new Error("User not found!"), user);
+            done(null, user);
         }
         else {
             const newUser = await models.User({
