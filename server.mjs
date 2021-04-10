@@ -1,21 +1,25 @@
 import express from 'express';
 import {connectDB} from './db/db_main.mjs';
-import dotenv from 'dotenv';
+
+// auth imports for loading authConfig
+import PassportConfig from './config/passport_config.mjs';
+
+// Routes imports
+import authRouter from './routes/auth.mjs';
 
 const app = express();
-const router = express.Router();
-const env_init = dotenv.config();
 
-if(env_init.error) {
-    console.log("\nError while loading env vars...\nError: ", env_init.error);
-}
-
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT;
 //app crash loggging code middleware
+
+// Routes
 
 app.get('', async (req, res, next) => {
     res.json({"Message": "Welcome to QuizMe Server"});
 })
+
+// Routes setup
+app.use('/auth', authRouter);
 
 connectDB().then(async() => {
     app.listen(PORT, () => {

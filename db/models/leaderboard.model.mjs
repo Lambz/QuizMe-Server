@@ -8,7 +8,8 @@ const leaderBoardSchema = new mongoose.Schema({
         },
         score: Number,
     }],
-
+    maxScore: Number,
+    minScore: Number,
 });
 
 const LeaderBoard = mongoose.model('LeaderBoard', leaderBoardSchema);
