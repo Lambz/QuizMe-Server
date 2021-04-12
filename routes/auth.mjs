@@ -1,5 +1,7 @@
 import express from 'express';
 import passport from 'passport';
+import models from '../db/db_main.mjs';
+import bcrypt from 'bcrypt';
 
 const router = express.Router();
 
@@ -15,12 +17,26 @@ router.get('/google/redirect', passport.authenticate('google'), async (req, res,
     res.send(req.user);
 });
 
-router.get('/signup', async (req, res, next) => {
-    
+router.post('/signup', async (req, res, next) => {
+    try {
+        const password = await bcrypt.hash(req.body.password, 10);
+        const user = await models.User({
+            _id: req.body.email,
+            name: req.body.name,
+            password: password,
+            quizTaken: 0
+        }).save();
+        res.body = user;
+        res.json(user);
+    }
+    catch(err) {
+        console.log("Error adding user!\nError: ", err);
+        res.json({Message:"Error Adding User"});
+    }
 });
 
-router.get('/login', async (req, res, next) => {
-    res.send('Email login');
+router.post('/login', passport.authenticate('local'), async (req, res, next) => {
+    res.send(req.user);
 })
 
 router.get('/logout', async (req, res, next) => {

@@ -5,9 +5,11 @@ import {connectDB} from './db/db_main.mjs';
 
 // auth imports for loading authConfig
 import PassportConfig from './config/passport_config.mjs';
+import LocalConfig from './config/passport_config_email.mjs';
 
 // Routes imports
 import authRouter from './routes/auth.mjs';
+import userRouter from './routes/user.mjs';
 
 const app = express();
 
@@ -20,6 +22,8 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 const PORT = process.env.PORT || 3000;
+app.use(express.json());
+app.use(express.urlencoded());
 //app crash loggging code middleware
 
 // Routes
@@ -30,6 +34,7 @@ app.get('', async (req, res, next) => {
 
 // Routes setup
 app.use('/auth', authRouter);
+app.use('/user', userRouter);
 
 connectDB().then(async() => {
     app.listen(PORT, () => {

@@ -9,7 +9,6 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true,
     },
-    email: String,
     password: String,
     quizTaken: {
         type: Number,
