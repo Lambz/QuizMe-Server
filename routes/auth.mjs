@@ -27,11 +27,11 @@ router.post('/signup', async (req, res, next) => {
             quizTaken: 0
         }).save();
         res.body = user;
-        res.json(user);
+        res.status(201).json(user);
     }
     catch(err) {
         console.log("Error adding user!\nError: ", err);
-        res.json({Message:"Error Adding User"});
+        res.status(500).json({Message:"Error Adding User"});
     }
 });
 

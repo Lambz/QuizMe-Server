@@ -10,6 +10,7 @@ import LocalConfig from './config/passport_config_email.mjs';
 // Routes imports
 import authRouter from './routes/auth.mjs';
 import userRouter from './routes/user.mjs';
+import quizRouter from './routes/quiz.mjs';
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(cookieSession({
 app.use(passport.initialize());
 app.use(passport.session());
 
+// express setup
 const PORT = process.env.PORT || 3000;
 app.use(express.json());
 app.use(express.urlencoded());
@@ -35,6 +37,7 @@ app.get('', async (req, res, next) => {
 // Routes setup
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
+app.use('/quiz', quizRouter);
 
 connectDB().then(async() => {
     app.listen(PORT, () => {
