@@ -42,7 +42,9 @@ const strategy = passport.use(new GoogleStrategy({
             const newUser = await models.User({
                 _id: profile.id,
                 name: profile.displayName,
-                quizTaken: 0
+                quizTaken: [],
+                totalScore: 0,
+                quizInvite: []
             }).save();
             done(new Error("User not found!"), newUser);
         }

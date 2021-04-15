@@ -24,7 +24,9 @@ router.post('/signup', async (req, res, next) => {
             _id: req.body.email,
             name: req.body.name,
             password: password,
-            quizTaken: 0
+            quizTaken: [],
+            totalScore: 0,
+            quizInvite: []
         }).save();
         res.body = user;
         res.status(201).json(user);

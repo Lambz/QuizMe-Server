@@ -12,13 +12,9 @@ const privateQuizSchema = new mongoose.Schema({
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
     },
-    max_scores: [{
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User',
-        },
-        score: Number,
-    }],
+    description: String,
+    noOfPlays: Number,
+    lastPlayed: Date
 }, {timestamps: true});
 
 const PrivateQuiz = mongoose.model('PrivateQuiz', privateQuizSchema);

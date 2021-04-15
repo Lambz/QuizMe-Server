@@ -11,6 +11,7 @@ import LocalConfig from './config/passport_config_email.mjs';
 import authRouter from './routes/auth.mjs';
 import userRouter from './routes/user.mjs';
 import quizRouter from './routes/quiz.mjs';
+import questionRouter from './routes/question.mjs';
 
 const app = express();
 
@@ -38,6 +39,7 @@ app.get('', async (req, res, next) => {
 app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/quiz', quizRouter);
+app.use('/question', questionRouter);
 
 connectDB().then(async() => {
     app.listen(PORT, () => {
