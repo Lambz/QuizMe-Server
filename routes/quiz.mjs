@@ -18,7 +18,7 @@ router.get('/', async (req, res, next) => {
     }
 });
 
-router.get('/:id', async(req, res, next) => {
+router.get('/id/:id', async(req, res, next) => {
     try {
         const id = req.params.id;
         const quiz = await models.Quiz.findById(id)
@@ -75,7 +75,7 @@ router.get('/popular', async(req, res, next) => {
 
 router.get('/latest', async(req, res, next) => {
     try {
-        let quizzes = await models.Quiz.find().sort('noOfPlays').populate({
+        let quizzes = await models.Quiz.find().sort('createdAt').populate({
             path: "questions",
             populate: "question"
         }).exec();
@@ -122,11 +122,13 @@ router.post('/add', async(req, res, next) => {
             quesArray.push(ques._id);
         });
         const quiz = await models.Quiz({
+            name: newQuiz.name,
             typeOfQuiz: newQuiz.typeOfQuiz,
             questions: quesArray,
             max_scores: [],
             description: newQuiz.description,
-            noOfPlays: 0
+            noOfPlays: 0,
+            lastPlayed: Date.now()
         }).save()
         res.json(quiz);
     }
@@ -135,5 +137,26 @@ router.post('/add', async(req, res, next) => {
         res.status(500).json({Message: "Error while adding quiz!"});
     }  
 });
+
+router.post('/update/:id', async(req, res, next) => {
+    try {
+        const updatedQuiz = req.body.quiz;
+        const update = {
+                name: updatedQuiz.name,
+                typeOfQuiz: updatedQuiz.typeOfQuiz,
+                questions: updatedQuiz.questions,
+                max_scores: updatedQuiz.max_scores,
+                description: updatedQuiz.description,
+                noOfPlays: updatedQuiz.noOfPlays,
+                lastPlayed: updatedQuiz.lastPlayed
+        };
+        const quiz = await models.Quiz.findByIdAndUpdate(updatedQuiz._id, update);
+        res.json(quiz);
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({Message: "Error while updating quiz"});
+    }
+})
 
 export default router;

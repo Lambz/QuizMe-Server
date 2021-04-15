@@ -16,7 +16,7 @@ router.get('/', async(req, res, next) => {
 router.post('/add', async(req, res, next) => {
     const question = req.body.question;
     try {
-        const q = models.Question({
+        const q = await models.Question({
             question: question.question,
             options: question.options,
             answer: question.answer,
@@ -31,7 +31,7 @@ router.post('/add', async(req, res, next) => {
     }
 });
 
-router.get('/:category', async(req, res, next) => {
+router.get('/category/:category', async(req, res, next) => {
     try {
         const category = req.params.category;
         const questions = await models.Question.find({type: category, isPublic: true}).exec();
