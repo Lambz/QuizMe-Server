@@ -115,6 +115,9 @@ router.get("/category/:category", async (req, res, next) => {
 router.post("/add", async (req, res, next) => {
     try {
         const newQuiz = req.body.quiz;
+        if (newQuiz.questions.length == 0) {
+            throw "No Questions";
+        }
         let quesArray = [];
         for (let i = 0; i < newQuiz.questions.length; i++) {
             const ques = await models
