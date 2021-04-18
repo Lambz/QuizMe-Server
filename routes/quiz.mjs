@@ -17,10 +17,7 @@ router.get("/id/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
         const quiz = await models.Quiz.findById(id)
-            .populate({
-                path: "questions",
-                populate: "question",
-            })
+            .populate("questions")
             .exec();
         let returnData = {
             quiz: quiz,
@@ -45,10 +42,7 @@ router.get("/trending", async (req, res, next) => {
     try {
         let quizzes = await models.Quiz.find()
             .sort("lastPlayed")
-            .populate({
-                path: "questions",
-                populate: "question",
-            })
+            .populate("questions")
             .exec();
         res.json(quizzes);
     } catch (err) {
@@ -61,10 +55,7 @@ router.get("/popular", async (req, res, next) => {
     try {
         let quizzes = await models.Quiz.find()
             .sort("noOfPlays")
-            .populate({
-                path: "questions",
-                populate: "question",
-            })
+            .populate("questions")
             .exec();
         res.json(quizzes);
     } catch (err) {
@@ -77,10 +68,7 @@ router.get("/latest", async (req, res, next) => {
     try {
         let quizzes = await models.Quiz.find()
             .sort("createdAt")
-            .populate({
-                path: "questions",
-                populate: "question",
-            })
+            .populate("questions")
             .exec();
         res.json(quizzes);
     } catch (err) {
@@ -93,10 +81,7 @@ router.get("/category/:category", async (req, res, next) => {
     const category = req.params.category;
     try {
         let quizzes = await models.Quiz.find({ typeOfQuiz: category })
-            .populate({
-                path: "questions",
-                populate: "question",
-            })
+            .populate("questions")
             .exec();
         res.json(quizzes);
     } catch (err) {
