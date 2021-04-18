@@ -14,8 +14,8 @@ router.get('/', async(req, res, next) => {
 });
 
 router.post('/add', async(req, res, next) => {
-    const question = req.body.question;
     try {
+        const question = req.body.question;
         const q = await models.Question({
             question: question.question,
             options: question.options,
@@ -40,6 +40,18 @@ router.get('/category/:category', async(req, res, next) => {
     catch(err) {
         console.log(err);
         res.status(500).json({Message: "Error while fetching questions"});
+    }
+});
+
+router.delete('/delete/:id', async(req, res, next) => {
+    try {
+        const id = req.params.id;
+        await models.Question.findByIdAndDelete(id);
+        res.json({Message: "Question deleted"});
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({Message: "Error while deleting question"});
     }
 });
 

@@ -3,6 +3,7 @@ import models from '../db/db_main.mjs';
 
 const router = express.Router();
 
+// fetches all public quiz
 router.get('/', async (req, res, next) => {
     try {
         const quiz = await models.Quiz.find()
@@ -156,6 +157,18 @@ router.post('/update/:id', async(req, res, next) => {
     catch(err) {
         console.log(err);
         res.status(500).json({Message: "Error while updating quiz"});
+    }
+});
+
+router.delete('/delete/:id', async(req, res, next) => {
+    try {
+        const id = req.params.id;
+        await models.Quiz.findByIdAndDelete(id);
+        res.json({Message: "Quiz deleted"});
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({Message: "Error while deleting quiz"});
     }
 })
 
