@@ -169,26 +169,35 @@ router.post("/update/:id", async (req, res, next) => {
     }
 });
 
-// send user, score(body) and quiz id(params)
-router.post('/played/:id', async(req, res, next) => {
+// send quiz, score(body)
+router.post('/played', async(req, res, next) => {
     if(!req.user) {
         res.status(400).json({Message: "Please login before saving gameplay"});
     }
     try {
-        const quizID = req.params.id;
+        const quiz = req.body.quiz;
+        const quizID = quiz._id;
         const score = req.body.score;
         const result = await models.Result({
             quiz: quizID,
             playedBy: req.user._id,
             score: score
         }).save();
-        const update = {
-            
+        let quizScores = quiz.max_scores;
+        quizScores.sort((a,b) => a.score >= b.score ? 1 : -1);
+        if(score >= quizScores[0].score) {
+            quizScores[0] = result;
+            const update = {
+                max_scores: quizScores
+            }
+            const updatedQuiz = await models.Quiz(quizID, update);
+            res.json(updatedQuiz);
         }
-        await models.User()
+        res.json(quiz);
     }
     catch(err) {
-
+        console.log(err);
+        res.status(500).json({Message: "Error saving gameplay!"});
     }
 
 });

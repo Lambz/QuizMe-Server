@@ -27,11 +27,11 @@ const localStrategy = passport.use(new LocalStrategy({
             if (!user) { 
                 done(null, false, {Message: "User not found!"}); 
             }
-            const enteredPassword = await bcrypt.hash(user.password, 10);
-            if (await bcrypt.compare(password, enteredPassword)) { 
-                done(null, false, {Message: "Password does not match"}); 
+            const compare = await bcrypt.compare(password, user.password);
+            if(compare) {
+                done(null, user);
             }
-            done(null, user);
+            done(null, false, {Message: "Password does not match"}); 
         }
         catch(err) {
             done(err);

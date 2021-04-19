@@ -8,19 +8,14 @@ const quizSchema = new mongoose.Schema(
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Question",
-            },
+            }
         ],
-        max_scores: [
+        max_scores: [[
             {
-                // NOTE: top 10/20 scores stored here
-                // if user among them then additional field added at the end
-                user: {
-                    type: mongoose.Schema.Types.String,
-                    ref: "User",
-                },
-                score: Number,
-            },
-        ],
+                type: mongoose.Schema.Types.ObjectId,
+                ref: "Result",
+            }
+        ]],
         description: String,
         lastPlayed: Date,
         noOfPlays: Number,

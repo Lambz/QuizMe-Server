@@ -11,8 +11,13 @@ const userSchema = new mongoose.Schema({
     },
     password: String,
     totalScore: Number,
-    quizInvite: [{
-        
+    inviteSent: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Invite'
+    }],
+    inviteReceived: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Invite'
     }]
 });
 
