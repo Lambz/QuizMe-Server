@@ -246,6 +246,17 @@ router.post("/played", async (req, res, next) => {
     }
 });
 
+router.get('/categories', async(req, res, next) => {
+    try {
+        const categories = await models.Quiz.find().distinct('category');
+        res.json({Categories: categories});
+    }
+    catch (err) {
+        console.log(err);
+        res.status(500).json({Message: "Error while fetching categories"});
+    }
+})
+
 router.delete("/delete/:id", async (req, res, next) => {
     try {
         const id = req.params.id;

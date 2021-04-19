@@ -4,7 +4,7 @@ const questionSchema = new mongoose.Schema({
     question: String,
     options: [String],
     answer: String,
-    type: String,
+    type: Number,
     isPublic: Boolean
 }, {timestamps: true});
 
