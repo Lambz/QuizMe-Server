@@ -25,10 +25,10 @@ const quizSchema = new mongoose.Schema(
         lastPlayed: Date,
         noOfPlays: Number,
         createdBy: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: 'User'
+            type: mongoose.Schema.Types.String,
+            ref: "User",
         },
-        isPublic: Boolean
+        isPublic: Boolean,
     },
     { timestamps: true }
 );
