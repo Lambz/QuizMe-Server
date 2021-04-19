@@ -16,6 +16,23 @@ router.get("/", async (req, res, next) => {
     }
 });
 
+router.get("/get", async(req, res, next) => {
+    if(!req.user) {
+        res.json({Message: "You need to login before fetching user quiz"});
+    }
+    try {
+        const quiz = await models.Quiz.find({ createdBy: req.user._id }).populate([
+            "questions",
+            "max_scores",
+        ]);
+        res.json(quiz);
+    }
+    catch(err) {
+        console.log(err);
+        res.status(500).json({Message: "Error fetching quizzes"});
+    }
+})
+
 router.get("/id/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
@@ -158,10 +175,7 @@ router.post("/update/:id", async (req, res, next) => {
             name: updatedQuiz.name,
             typeOfQuiz: updatedQuiz.typeOfQuiz,
             questions: updatedQuiz.questions,
-            max_scores: updatedQuiz.max_scores,
             description: updatedQuiz.description,
-            noOfPlays: updatedQuiz.noOfPlays,
-            lastPlayed: updatedQuiz.lastPlayed,
             isPublic: updatedQuiz.isPublic,
         };
         const quiz = await models.Quiz.findByIdAndUpdate(
@@ -202,6 +216,8 @@ router.post("/played", async (req, res, next) => {
             let quizes = quizScores.map((quizScore) => quizScore._id);
             const update = {
                 max_scores: quizes,
+                lastPlayed: Date.now(),
+                noOfPlays: quiz.noOfPlays + 1 
             };
             const updatedQuiz = await models.Quiz.findByIdAndUpdate(
                 quizID,
@@ -212,6 +228,8 @@ router.post("/played", async (req, res, next) => {
             quizScores = [result];
             const update = {
                 max_scores: quizScores,
+                lastPlayed: Date.now(),
+                noOfPlays: quiz.noOfPlays + 1 
             };
             // const updatedQuiz = await models.Quiz(quizID, update);
             const updatedQuiz = await models.Quiz.findByIdAndUpdate(
