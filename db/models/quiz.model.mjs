@@ -8,14 +8,14 @@ const quizSchema = new mongoose.Schema(
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Question",
-            }
+            },
         ],
-        max_scores: [[
+        max_scores: [
             {
                 type: mongoose.Schema.Types.ObjectId,
                 ref: "Result",
-            }
-        ]],
+            },
+        ],
         description: String,
         lastPlayed: Date,
         noOfPlays: Number,

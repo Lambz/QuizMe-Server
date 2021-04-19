@@ -1,17 +1,20 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
-const resultSchema = new mongoose.Schema({
-    quiz: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Quiz'
+const resultSchema = new mongoose.Schema(
+    {
+        quiz: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Quiz",
+        },
+        playedBy: {
+            type: mongoose.Schema.Types.String,
+            ref: "User",
+        },
+        score: Number,
     },
-    playedBy: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
-    },
-    score: Number
-}, {timestamps: true});
+    { timestamps: true }
+);
 
-const Result = mongoose.model('Result', resultSchema);
+const Result = mongoose.model("Result", resultSchema);
 
 export default Result;

@@ -5,7 +5,10 @@ const router = express.Router();
 
 router.get("/", async (req, res, next) => {
     try {
-        const quiz = await models.Quiz.find({isPublic: true}).populate("questions");
+        const quiz = await models.Quiz.find({ isPublic: true }).populate([
+            "questions",
+            "max_scores",
+        ]);
         res.json(quiz);
     } catch (err) {
         console.log("Error while fetching quiz!", err);
@@ -40,7 +43,7 @@ router.get("/id/:id", async (req, res, next) => {
 
 router.get("/trending", async (req, res, next) => {
     try {
-        let quizzes = await models.Quiz.find({isPublic: true})
+        let quizzes = await models.Quiz.find({ isPublic: true })
             .sort("lastPlayed")
             .populate("questions")
             .exec();
@@ -53,7 +56,7 @@ router.get("/trending", async (req, res, next) => {
 
 router.get("/popular", async (req, res, next) => {
     try {
-        let quizzes = await models.Quiz.find({isPublic: true})
+        let quizzes = await models.Quiz.find({ isPublic: true })
             .sort("noOfPlays")
             .populate("questions")
             .exec();
@@ -66,7 +69,7 @@ router.get("/popular", async (req, res, next) => {
 
 router.get("/latest", async (req, res, next) => {
     try {
-        let quizzes = await models.Quiz.find({isPublic: true})
+        let quizzes = await models.Quiz.find({ isPublic: true })
             .sort("createdAt")
             .populate("questions")
             .exec();
@@ -80,7 +83,10 @@ router.get("/latest", async (req, res, next) => {
 router.get("/category/:category", async (req, res, next) => {
     const category = req.params.category;
     try {
-        let quizzes = await models.Quiz.find({ isPublic: true, typeOfQuiz: category })
+        let quizzes = await models.Quiz.find({
+            isPublic: true,
+            typeOfQuiz: category,
+        })
             .populate("questions")
             .exec();
         res.json(quizzes);
@@ -98,8 +104,8 @@ router.get("/category/:category", async (req, res, next) => {
 // question format {question. options, answer}
 
 router.post("/add", async (req, res, next) => {
-    if(!req.user) {
-        res.status(400).json({Message: "Login before adding quiz"});
+    if (!req.user) {
+        res.status(400).json({ Message: "Login before adding quiz" });
     }
     try {
         const newQuiz = req.body.quiz;
@@ -129,7 +135,7 @@ router.post("/add", async (req, res, next) => {
                 noOfPlays: 0,
                 lastPlayed: Date.now(),
                 createdBy: req.user._id,
-                isPublic: newQuiz.isPublic
+                isPublic: newQuiz.isPublic,
             })
             .save();
         res.json(quiz);
@@ -142,12 +148,12 @@ router.post("/add", async (req, res, next) => {
 router.post("/update/:id", async (req, res, next) => {
     try {
         const updatedQuiz = req.body.quiz;
-        updatedQuiz.questions.forEach(question => {
+        updatedQuiz.questions.forEach((question) => {
             let quesUpdate = {
-                isPublic: updatedQuiz.isPublic
-            }
+                isPublic: updatedQuiz.isPublic,
+            };
             models.Question.findByIdAndUpdate(question._id, quesUpdate);
-        })
+        });
         const update = {
             name: updatedQuiz.name,
             typeOfQuiz: updatedQuiz.typeOfQuiz,
@@ -156,7 +162,7 @@ router.post("/update/:id", async (req, res, next) => {
             description: updatedQuiz.description,
             noOfPlays: updatedQuiz.noOfPlays,
             lastPlayed: updatedQuiz.lastPlayed,
-            isPublic: updatedQuiz.isPublic
+            isPublic: updatedQuiz.isPublic,
         };
         const quiz = await models.Quiz.findByIdAndUpdate(
             updatedQuiz._id,
@@ -170,49 +176,67 @@ router.post("/update/:id", async (req, res, next) => {
 });
 
 // send quiz, score(body)
-router.post('/played', async(req, res, next) => {
-    if(!req.user) {
-        res.status(400).json({Message: "Please login before saving gameplay"});
+router.post("/played", async (req, res, next) => {
+    if (!req.user) {
+        res.status(400).json({
+            Message: "Please login before saving gameplay",
+        });
     }
     try {
-        const quiz = req.body.quiz;
+        let quiz = req.body.quiz;
         const quizID = quiz._id;
         const score = req.body.score;
-        const result = await models.Result({
-            quiz: quizID,
-            playedBy: req.user._id,
-            score: score
-        }).save();
+        const result = await models
+            .Result({
+                quiz: quizID,
+                playedBy: req.user._id,
+                score: score,
+            })
+            .save();
+        quiz = await models.Quiz.findById(quizID).populate("max_scores");
         let quizScores = quiz.max_scores;
-        quizScores.sort((a,b) => a.score >= b.score ? 1 : -1);
-        if(score >= quizScores[0].score) {
-            quizScores[0] = result;
+        if (quizScores.length > 0) {
+            quizScores.push(result);
+            quizScores.sort((a, b) => (a.score > b.score ? -1 : 1));
+            quizScores.splice(10);
+            let quizes = quizScores.map((quizScore) => quizScore._id);
             const update = {
-                max_scores: quizScores
-            }
-            const updatedQuiz = await models.Quiz(quizID, update);
+                max_scores: quizes,
+            };
+            const updatedQuiz = await models.Quiz.findByIdAndUpdate(
+                quizID,
+                update
+            );
+            res.json(updatedQuiz);
+        } else {
+            quizScores = [result];
+            const update = {
+                max_scores: quizScores,
+            };
+            // const updatedQuiz = await models.Quiz(quizID, update);
+            const updatedQuiz = await models.Quiz.findByIdAndUpdate(
+                quizID,
+                update
+            );
             res.json(updatedQuiz);
         }
-        res.json(quiz);
-    }
-    catch(err) {
-        console.log(err);
-        res.status(500).json({Message: "Error saving gameplay!"});
-    }
 
+        res.json(quiz);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ Message: "Error saving gameplay!" });
+    }
 });
 
-
-router.delete('/delete/:id', async(req, res, next) => {
+router.delete("/delete/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
         await models.Quiz.findByIdAndDelete(id);
-        res.json({Message: "Quiz deleted"});
-    }
-    catch(err) {
+        res.json({ Message: "Quiz deleted" });
+    } catch (err) {
         console.log(err);
-        res.status(500).json({Message: "Error while deleting quiz"});
+        res.status(500).json({ Message: "Error while deleting quiz" });
     }
-})
+});
 
 export default router;
