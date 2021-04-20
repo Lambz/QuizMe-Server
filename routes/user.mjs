@@ -10,7 +10,12 @@ router.get("/", async (req, res, next) => {
     }
     try {
         const userID = req.user._id;
-        const user = await models.User.findById(userID);
+        const user = await models.User.findById(userID)
+            .populate(["inviteSent", "inviteReceived"])
+            .populate({
+                path: "inviteReceived",
+                populate: ["from", "to", "quiz"],
+            });
         res.json(user);
     } catch (err) {
         console.log(err);
@@ -24,6 +29,7 @@ router.get("/all", async (req, res, next) => {
             "inviteSent",
             "inviteReceived",
         ]);
+
         res.json(users);
     } catch (err) {
         console.log("Error fetching users.\n", err);
@@ -67,6 +73,52 @@ router.post("/challenge", async (req, res, next) => {
     } catch (err) {
         console.log("Error fetching users.\n", err);
         res.json({ Message: "Error fetching users" });
+    }
+});
+
+router.get("/inviteReceived", async (req, res, next) => {
+    console.log("req.header: ", req.headers);
+    if (!req.user) {
+        res.status(400).json({ Message: "Login before fetching details" });
+    }
+    try {
+        const userID = req.user._id;
+        const user = await models.User.findById(userID)
+            .populate("inviteReceived")
+            .populate({
+                path: "inviteReceived",
+                populate: ["from", "to", "quiz"],
+            })
+            .populate({
+                path: "inviteReceived",
+                populate: {
+                    path: "quiz",
+                    populate: "questions",
+                },
+            });
+        const invites = user.inviteReceived.filter(
+            (invite) => !invite.accepted
+        );
+        res.json(invites);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ Message: "Error while fetching user" });
+    }
+});
+
+router.get("/acceptInvite/:id", async (req, res, next) => {
+    console.log("req.header: ", req.headers);
+    if (!req.user) {
+        res.status(400).json({ Message: "Login before fetching details" });
+    }
+    try {
+        const invite = await models.Invite.findByIdAndUpdate(req.params.id, {
+            accepted: true,
+        });
+        res.json(invite);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ Message: "Error while fetching user" });
     }
 });
 
