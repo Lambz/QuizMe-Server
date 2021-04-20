@@ -1,4 +1,4 @@
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
     _id: {
@@ -11,20 +11,24 @@ const userSchema = new mongoose.Schema({
     },
     password: String,
     totalScore: Number,
-    inviteSent: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Invite'
-    }],
-    inviteReceived: [{
-        type: mongoose.Schema.Types.ObjectId,
-        ref: 'Invite'
-    }]
+    inviteSent: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Invite",
+        },
+    ],
+    inviteReceived: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Invite",
+        },
+    ],
 });
 
-userSchema.pre('remove', (next) => {
-    this.model('PrivateQuiz').deleteMany({user: this._id}, next);
+userSchema.pre("remove", (next) => {
+    this.model("PrivateQuiz").deleteMany({ user: this._id }, next);
 });
 
-const User = mongoose.model('User', userSchema);
+const User = mongoose.model("User", userSchema);
 
 export default User;
