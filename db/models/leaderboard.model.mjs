@@ -6,6 +6,7 @@ const leaderBoardSchema = new mongoose.Schema({
         ref: 'User'
     },
     score: Number,
+    gamesPlayed: Number
 });
 
 const LeaderBoard = mongoose.model('LeaderBoard', leaderBoardSchema);

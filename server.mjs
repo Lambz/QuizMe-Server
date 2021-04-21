@@ -12,6 +12,7 @@ import authRouter from './routes/auth.mjs';
 import userRouter from './routes/user.mjs';
 import quizRouter from './routes/quiz.mjs';
 import questionRouter from './routes/question.mjs';
+import leaderboardRouter from './routes/leaderboard.mjs';
 
 const app = express();
 
@@ -40,6 +41,7 @@ app.use('/auth', authRouter);
 app.use('/user', userRouter);
 app.use('/quiz', quizRouter);
 app.use('/question', questionRouter);
+app.use('/leaderboard', leaderboardRouter);
 
 connectDB().then(async() => {
     app.listen(PORT, () => {
