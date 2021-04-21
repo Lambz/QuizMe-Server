@@ -7,7 +7,10 @@ router.get("/", async (req, res, next) => {
     try {
         const quiz = await models.Quiz.find({ isPublic: true })
             .populate(["questions", "max_scores"])
-            .populate({ path: "max_scores", populate: "playedBy" });
+            .populate({
+                path: "max_scores",
+                populate: ["result", "playedBy"],
+            });
         res.json(quiz);
     } catch (err) {
         console.log("Error while fetching quiz!", err);
@@ -22,7 +25,12 @@ router.get("/get", async (req, res, next) => {
     try {
         const quiz = await models.Quiz.find({
             createdBy: req.user._id,
-        }).populate(["questions", "max_scores"]);
+        })
+            .populate(["questions", "max_scores"])
+            .populate({
+                path: "max_scores",
+                populate: ["result", "playedBy"],
+            });
         res.json(quiz);
     } catch (err) {
         console.log(err);
@@ -65,6 +73,10 @@ router.get("/trending", async (req, res, next) => {
         let quizzes = await models.Quiz.find({ isPublic: true })
             .sort("lastPlayed")
             .populate("questions")
+            .populate({
+                path: "max_scores",
+                populate: ["result", "playedBy"],
+            })
             .exec();
         res.json(quizzes);
     } catch (err) {
@@ -78,6 +90,10 @@ router.get("/popular", async (req, res, next) => {
         let quizzes = await models.Quiz.find({ isPublic: true })
             .sort("noOfPlays")
             .populate("questions")
+            .populate({
+                path: "max_scores",
+                populate: ["result", "playedBy"],
+            })
             .exec();
         res.json(quizzes);
     } catch (err) {
@@ -91,6 +107,10 @@ router.get("/latest", async (req, res, next) => {
         let quizzes = await models.Quiz.find({ isPublic: true })
             .sort("createdAt")
             .populate("questions")
+            .populate({
+                path: "max_scores",
+                populate: ["result", "playedBy"],
+            })
             .exec();
         res.json(quizzes);
     } catch (err) {
@@ -107,6 +127,10 @@ router.get("/category/:category", async (req, res, next) => {
             typeOfQuiz: category,
         })
             .populate("questions")
+            .populate({
+                path: "max_scores",
+                populate: ["result", "playedBy"],
+            })
             .exec();
         res.json(quizzes);
     } catch (err) {
