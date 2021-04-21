@@ -122,4 +122,51 @@ router.get("/acceptInvite/:id", async (req, res, next) => {
     }
 });
 
+router.get("/inviteSent", async (req, res, next) => {
+    console.log("req.header: ", req.headers);
+    if (!req.user) {
+        res.status(400).json({ Message: "Login before fetching details" });
+    }
+    try {
+        const userID = req.user._id;
+        const user = await models.User.findById(userID)
+            .populate("inviteSent")
+            .populate({
+                path: "inviteSent",
+                populate: ["to", "quiz"],
+            })
+            .populate({
+                path: "inviteSent",
+                populate: {
+                    path: "quiz",
+                    populate: "questions",
+                },
+            });
+        let results = [];
+        for (let i = 0; i < user.inviteSent.length; i++) {
+            let result = {
+                name: user.inviteSent[i].to.name,
+                accepted: user.inviteSent[i].accepted,
+                createdAt: user.inviteSent[i].createdAt,
+                updatedAt: user.inviteSent[i].updatedAt,
+                quiz: user.inviteSent[i].quiz,
+            };
+            if (user.inviteSent[i].accepted && user.inviteSent[i].to != null) {
+                let x = await models.Result.find({
+                    quiz: user.inviteSent[i].quiz,
+                    playedBy: user.inviteSent[i].to._id,
+                })
+                    .sort({ createdAt: "descending" })
+                    .limit(1);
+                result["score"] = x[0].score;
+            }
+            results.push(result);
+        }
+        res.json(results);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ Message: "Error while fetching user" });
+    }
+});
+
 export default router;
