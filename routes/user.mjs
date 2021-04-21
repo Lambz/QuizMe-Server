@@ -158,7 +158,11 @@ router.get("/inviteSent", async (req, res, next) => {
                 })
                     .sort({ createdAt: "descending" })
                     .limit(1);
-                result["score"] = x[0].score;
+                if (x.length > 0) {
+                    result["score"] = x[0].score;
+                } else {
+                    result["score"] = "Not Played yet";
+                }
             }
             results.push(result);
         }
