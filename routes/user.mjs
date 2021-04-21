@@ -93,7 +93,17 @@ router.get("/inviteReceived", async (req, res, next) => {
                 path: "inviteReceived",
                 populate: {
                     path: "quiz",
-                    populate: "questions",
+                    populate: ["questions", "max_scores"],
+                },
+            })
+            .populate({
+                path: "inviteReceived",
+                populate: {
+                    path: "quiz",
+                    populate: {
+                        path: "max_scores",
+                        populate: "playedBy",
+                    },
                 },
             });
         const invites = user.inviteReceived.filter(
@@ -139,7 +149,17 @@ router.get("/inviteSent", async (req, res, next) => {
                 path: "inviteSent",
                 populate: {
                     path: "quiz",
-                    populate: "questions",
+                    populate: ["questions", "max_scores"],
+                },
+            })
+            .populate({
+                path: "inviteSent",
+                populate: {
+                    path: "quiz",
+                    populate: {
+                        path: "max_scores",
+                        populate: "playedBy",
+                    },
                 },
             });
         let results = [];
@@ -167,6 +187,27 @@ router.get("/inviteSent", async (req, res, next) => {
             results.push(result);
         }
         res.json(results);
+    } catch (err) {
+        console.log(err);
+        res.status(500).json({ Message: "Error while fetching user" });
+    }
+});
+
+router.get("/results", async (req, res, next) => {
+    console.log("req.header: ", req.headers);
+    if (!req.user) {
+        res.status(400).json({ Message: "Login before fetching details" });
+    }
+    try {
+        const userID = req.user._id;
+        const result = await models.Result.find({ playedBy: userID })
+            .populate("quiz")
+            .populate({ path: "quiz", populate: ["max_scores", "questions"] })
+            .populate({
+                path: "quiz",
+                populate: { path: "max_scores", populate: "playedBy" },
+            });
+        res.json(result);
     } catch (err) {
         console.log(err);
         res.status(500).json({ Message: "Error while fetching user" });

@@ -5,10 +5,9 @@ const router = express.Router();
 
 router.get("/", async (req, res, next) => {
     try {
-        const quiz = await models.Quiz.find({ isPublic: true }).populate([
-            "questions",
-            "max_scores",
-        ]);
+        const quiz = await models.Quiz.find({ isPublic: true })
+            .populate(["questions", "max_scores"])
+            .populate({ path: "max_scores", populate: "playedBy" });
         res.json(quiz);
     } catch (err) {
         console.log("Error while fetching quiz!", err);
@@ -16,31 +15,30 @@ router.get("/", async (req, res, next) => {
     }
 });
 
-router.get("/get", async(req, res, next) => {
-    if(!req.user) {
-        res.json({Message: "You need to login before fetching user quiz"});
+router.get("/get", async (req, res, next) => {
+    if (!req.user) {
+        res.json({ Message: "You need to login before fetching user quiz" });
     }
     try {
-        const quiz = await models.Quiz.find({ createdBy: req.user._id }).populate([
-            "questions",
-            "max_scores",
-        ]);
+        const quiz = await models.Quiz.find({
+            createdBy: req.user._id,
+        }).populate(["questions", "max_scores"]);
         res.json(quiz);
-    }
-    catch(err) {
+    } catch (err) {
         console.log(err);
-        res.status(500).json({Message: "Error fetching quizzes"});
+        res.status(500).json({ Message: "Error fetching quizzes" });
     }
-})
+});
 
 router.get("/id/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
-        console.log(id)
+        console.log(id);
         const quiz = await models.Quiz.findById(id)
-            .populate("questions").populate({
+            .populate("questions")
+            .populate({
                 path: "max_scores",
-                populate: "result"
+                populate: ["result", "playedBy"],
             });
         let returnData = {
             quiz: quiz,
@@ -221,7 +219,7 @@ router.post("/played", async (req, res, next) => {
             const update = {
                 max_scores: quizes,
                 lastPlayed: Date.now(),
-                noOfPlays: quiz.noOfPlays + 1 
+                noOfPlays: quiz.noOfPlays + 1,
             };
             const updatedQuiz = await models.Quiz.findByIdAndUpdate(
                 quizID,
@@ -233,7 +231,7 @@ router.post("/played", async (req, res, next) => {
             const update = {
                 max_scores: quizScores,
                 lastPlayed: Date.now(),
-                noOfPlays: quiz.noOfPlays + 1 
+                noOfPlays: quiz.noOfPlays + 1,
             };
             // const updatedQuiz = await models.Quiz(quizID, update);
             const updatedQuiz = await models.Quiz.findByIdAndUpdate(
@@ -244,25 +242,28 @@ router.post("/played", async (req, res, next) => {
         }
 
         // update leaderboard
-        const user = await models.LeaderBoard.findOne({user: req.user._id});
+        const user = await models.LeaderBoard.findOne({ user: req.user._id });
         let update = {};
-        if(user) {
+        if (user) {
             update = {
                 score: user.score + score,
-                gamesPlayed: user.gamesPlayed + 1
-            }
-        }
-        else {
+                gamesPlayed: user.gamesPlayed + 1,
+            };
+        } else {
             update = {
                 score: score,
-                gamesPlayed: 1
-            }
+                gamesPlayed: 1,
+            };
         }
-        
-        const newUser = await models.LeaderBoard.findOneAndUpdate({user: req.user._id}, update, {
-            new: true,
-            upsert: true
-        });
+
+        const newUser = await models.LeaderBoard.findOneAndUpdate(
+            { user: req.user._id },
+            update,
+            {
+                new: true,
+                upsert: true,
+            }
+        );
 
         console.log("Added dashboard", newUser);
 
@@ -273,16 +274,15 @@ router.post("/played", async (req, res, next) => {
     }
 });
 
-router.get('/categories', async(req, res, next) => {
+router.get("/categories", async (req, res, next) => {
     try {
-        const categories = await models.Quiz.find().distinct('category');
-        res.json({Categories: categories});
-    }
-    catch (err) {
+        const categories = await models.Quiz.find().distinct("category");
+        res.json({ Categories: categories });
+    } catch (err) {
         console.log(err);
-        res.status(500).json({Message: "Error while fetching categories"});
+        res.status(500).json({ Message: "Error while fetching categories" });
     }
-})
+});
 
 router.delete("/delete/:id", async (req, res, next) => {
     try {
