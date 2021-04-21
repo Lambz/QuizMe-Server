@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const leaderBoardSchema = new mongoose.Schema({ 
     user: {
-        type: mongoose.Schema.Types.ObjectId,
+        type: mongoose.Schema.Types.String,
         ref: 'User'
     },
     score: Number,

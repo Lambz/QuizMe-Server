@@ -264,6 +264,8 @@ router.post("/played", async (req, res, next) => {
             upsert: true
         });
 
+        console.log("Added dashboard", newUser);
+
         res.json(quiz);
     } catch (err) {
         console.log(err);
