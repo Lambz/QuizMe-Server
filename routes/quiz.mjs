@@ -36,15 +36,18 @@ router.get("/get", async(req, res, next) => {
 router.get("/id/:id", async (req, res, next) => {
     try {
         const id = req.params.id;
+        console.log(id)
         const quiz = await models.Quiz.findById(id)
-            .populate("questions")
-            .exec();
+            .populate("questions").populate({
+                path: "max_scores",
+                populate: "result"
+            });
         let returnData = {
             quiz: quiz,
         };
         if (req.user) {
             const filteredArray = quiz.max_scores.filter(
-                (data) => data.user === req.user._id
+                (data) => data.playedBy === req.user._id
             );
             if (filteredArray.length > 0) {
                 returnData["userScored"] = true;
@@ -52,6 +55,7 @@ router.get("/id/:id", async (req, res, next) => {
                 returnData["userScored"] = false;
             }
         }
+        res.json(returnData);
     } catch (err) {
         console.log(err);
         res.status(500).json({ Message: "Error fetching the quiz" });
