@@ -244,12 +244,25 @@ router.post("/played", async (req, res, next) => {
         }
 
         // update leaderboard
-        const user = await models.LeaderBoard.findByOne({user: req.user._id});
-        const update = {
-            score: user.score + score,
-            gamesPlayed: user.gamesPlayed + 1
+        const user = await models.LeaderBoard.findOne({user: req.user._id});
+        let update = {};
+        if(user) {
+            update = {
+                score: user.score + score,
+                gamesPlayed: user.gamesPlayed + 1
+            }
         }
-        const newUser = await models.LeaderBoard.findOneAndUpdate({user: req.user._id}, update);
+        else {
+            update = {
+                score: score,
+                gamesPlayed: 1
+            }
+        }
+        
+        const newUser = await models.LeaderBoard.findOneAndUpdate({user: req.user._id}, update, {
+            new: true,
+            upsert: true
+        });
 
         res.json(quiz);
     } catch (err) {
