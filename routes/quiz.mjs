@@ -18,6 +18,17 @@ router.get("/", async (req, res, next) => {
     }
 });
 
+router.get("/minified", async (req, res, next) => {
+    try {
+        const quiz = await models.Quiz.find({ isPublic: true });
+        res.json(quiz);
+    } catch (err) {
+        console.log("Error while fetching quiz!", err);
+        res.status(500).json({ Message: "Error while fetching quizzes" });
+    }
+});
+
+
 router.get("/get", async (req, res, next) => {
     if (!req.user) {
         res.json({ Message: "You need to login before fetching user quiz" });
