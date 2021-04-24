@@ -240,10 +240,10 @@ router.post("/sendInvite", async (req, res, next) => {
         await models.User.findByIdAndUpdate(req.body.sendTo, {
             inviteSent: invites,
         });
-        res.json({ Message: "Invite sent" });
+        res.json({ Message: true });
     } catch (err) {
         console.log(err);
-        res.status(500).json({ Message: "Error while sending invite" });
+        res.status(500).json({ Message: false });
     }
 });
 
