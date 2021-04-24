@@ -201,6 +201,7 @@ router.get("/results", async (req, res, next) => {
     try {
         const userID = req.user._id;
         const result = await models.Result.find({ playedBy: userID })
+            .sort("-createdAt")
             .populate("quiz")
             .populate({ path: "quiz", populate: ["max_scores", "questions"] })
             .populate({
@@ -214,31 +215,36 @@ router.get("/results", async (req, res, next) => {
     }
 });
 
-router.post('/sendInvite', async (req, res, next) => {
-    if(!req.user) {
-        res.status(400).json({Message: "Login before sending challenge"})
+router.post("/sendInvite", async (req, res, next) => {
+    if (!req.user) {
+        res.status(400).json({ Message: "Login before sending challenge" });
     }
     try {
-        const invite = await models.Invite({
-            from: req.user._id,
-            to: req.body.sendTo,
-            quiz: req.body.quiz,
-            accepted: false
-        }).save();
+        const invite = await models
+            .Invite({
+                from: req.user._id,
+                to: req.body.sendTo,
+                quiz: req.body.quiz,
+                accepted: false,
+            })
+            .save();
         const sender = await models.User.findById(req.user._id);
         let invites = sender.inviteSent;
         invites.push(invite._id);
-        await models.User.findByIdAndUpdate(req.user._id, {inviteSent: invites});
+        await models.User.findByIdAndUpdate(req.user._id, {
+            inviteSent: invites,
+        });
         const sendTo = await models.User.findById(req.body.sendTo);
         invites = sender.inviteReceived;
         invites.push(invite._id);
-        await models.User.findByIdAndUpdate(req.body.sendTo, {inviteSent: invites});
-        res.json({Message: "Invite sent"});
-    }
-    catch(err) {
+        await models.User.findByIdAndUpdate(req.body.sendTo, {
+            inviteSent: invites,
+        });
+        res.json({ Message: "Invite sent" });
+    } catch (err) {
         console.log(err);
-        res.status(500).json({Message: "Error while sending invite"});
+        res.status(500).json({ Message: "Error while sending invite" });
     }
-})
+});
 
 export default router;

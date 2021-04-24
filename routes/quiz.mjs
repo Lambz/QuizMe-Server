@@ -6,6 +6,7 @@ const router = express.Router();
 router.get("/", async (req, res, next) => {
     try {
         const quiz = await models.Quiz.find({ isPublic: true })
+            .sort("-createdAt")
             .populate(["questions", "max_scores"])
             .populate({
                 path: "max_scores",
@@ -27,7 +28,6 @@ router.get("/minified", async (req, res, next) => {
         res.status(500).json({ Message: "Error while fetching quizzes" });
     }
 });
-
 
 router.get("/get", async (req, res, next) => {
     if (!req.user) {
